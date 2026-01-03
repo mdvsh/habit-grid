@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Mono', 'Menlo', 'Monaco', monospace;
+            background-color: #e8e0d0;
+            color: #2d2a26;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: #f5f0e1;
+            min-height: 100vh;
+            background-image: 
+                linear-gradient(rgba(139, 119, 92, 0.03) 1px, transparent 1px);
+            background-size: 100% 24px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            border-bottom: 2px solid #8b775c;
+            background: linear-gradient(to bottom, #f5f0e1, #f0e9d8);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: baseline;
+            gap: 24px;
+        }
+
+        .month-title {
+            font-size: 22px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #3d3428;
+            border-bottom: 3px solid #c9a86c;
+            padding-bottom: 2px;
+        }
+
+        .monthly-theme {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .monthly-theme input {
+            border: none;
+            border-bottom: 1px solid #ccc;
+            background: transparent;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 500;
+            width: 160px;
+            padding: 2px 0;
+            color: #2d2a26;
+        }
+
+        .monthly-theme input:focus {
+            outline: none;
+            border-bottom-color: #2d2a26;
+        }
+
+        .motto {
+            font-size: 11px;
+            color: #999;
+            font-style: italic;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 6px;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: 1px solid #8b775c;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 11px;
+            border-radius: 3px;
+            transition: all 0.15s;
+            color: #5c5347;
+            font-weight: 600;
+        }
+
+        .nav-btn:hover {
+            background: #5c5347;
+            color: #f5f0e1;
+            border-color: #5c5347;
+        }
+
+        .nav-btn.export {
+            color: #1e5f8a;
+            border-color: #1e5f8a;
+        }
+
+        .nav-btn.export:hover {
+            background: #1e5f8a;
+            color: #fff;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 280px 1fr 140px;
+            min-height: calc(100vh - 60px);
+        }
+
+        /* Left - Memorable Moments */
+        .moments-section {
+            border-right: 2px solid #8b775c;
+            padding: 12px;
+            background: #f0e9d8;
+            overflow-y: auto;
+        }
+
+        .moments-title {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #8b775c;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #c9a86c;
+            font-weight: 700;
+        }
+
+        .moment-row {
+            display: flex;
+            gap: 6px;
+            padding: 4px 0;
+            border-bottom: 1px solid #e0d7c6;
+            align-items: flex-start;
+        }
+
+        .moment-row.sunday {
+            border-bottom: 2px solid #8b775c;
+        }
+
+        .moment-day {
+            font-size: 10px;
+            font-weight: 700;
+            color: #8b775c;
+            min-width: 18px;
+        }
+
+        .moment-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: 10px;
+            padding: 2px 0;
+            line-height: 1.4;
+        }
+
+        .moment-input:focus {
+            outline: none;
+            background: #fff;
+        }
+
+        /* Center - Habit Grid */
+        .grid-section {
+            overflow-x: auto;
+            padding: 12px;
+        }
+
+        .habit-grid {
+            border-collapse: collapse;
+            font-size: 10px;
+            width: 100%;
+        }
+
+        .habit-grid th,
+        .habit-grid td {
+            border: 1px solid #d4cbb8;
+            text-align: center;
+            padding: 0;
+        }
+
+        .habit-grid th {
+            background: #e8e0d0;
+            font-weight: 700;
+            font-size: 9px;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+            height: 75px;
+            padding: 6px 3px;
+            white-space: nowrap;
+            letter-spacing: 0.5px;
+            color: #4a4235;
+            border-bottom: 2px solid #8b775c;
+        }
+
+        .habit-grid th.day-col {
+            writing-mode: horizontal-tb;
+            transform: none;
+            height: auto;
+            width: 24px;
+            font-weight: 700;
+            font-size: 10px;
+            color: #3d3428;
+        }
+
+        .habit-grid th.quant-col {
+            color: #1e5f8a;
+            font-weight: 800;
+        }
+
+        .habit-grid th.avoid-col {
+            color: #b83232;
+            font-weight: 800;
+        }
+
+        .habit-grid th.score-col {
+            writing-mode: horizontal-tb;
+            transform: none;
+            height: auto;
+            width: 28px;
+            font-weight: 700;
+            color: #3d3428;
+        }
+
+        .habit-grid td {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+
+        .habit-grid td:hover {
+            background: #e8e0d0;
+        }
+
+        .habit-grid td.day-cell {
+            background: #e8e0d0;
+            font-weight: 700;
+            font-size: 10px;
+            cursor: default;
+            color: #5c5347;
+        }
+
+        .habit-grid td.checked {
+            font-weight: 800;
+            font-size: 14px;
+        }
+
+        .habit-grid td.positive.checked {
+            color: #2d2a26;
+            background: rgba(201, 168, 108, 0.15);
+        }
+
+        .habit-grid td.avoid.checked {
+            color: #b83232;
+            background: rgba(184, 50, 50, 0.08);
+        }
+
+        .habit-grid td.quant-cell {
+            padding: 0;
+        }
+
+        .habit-grid td.quant-cell input {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: transparent;
+            text-align: center;
+            font-family: inherit;
+            font-size: 9px;
+            padding: 2px;
+        }
+
+        .habit-grid td.quant-cell input:focus {
+            outline: none;
+            background: #fff;
+        }
+
+        .habit-grid td.score-cell {
+            background: #e8e0d0;
+            font-weight: 700;
+            font-size: 10px;
+            cursor: default;
+            color: #3d3428;
+        }
+
+        .habit-grid tr.sunday-row td {
+            border-bottom: 2px solid #8b775c;
+        }
+
+        /* Right - Score Graph */
+        .graph-section {
+            border-left: 2px solid #8b775c;
+            padding: 12px 8px;
+            background: #f0e9d8;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .graph-title {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #8b775c;
+            text-align: center;
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        .graph-scale {
+            display: flex;
+            justify-content: space-between;
+            font-size: 8px;
+            color: #a0927c;
+            padding: 0 4px;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .graph-container {
+            flex: 1;
+            position: relative;
+        }
+
+        .graph-row {
+            display: flex;
+            align-items: center;
+            height: 24px;
+            border-bottom: 1px solid #e0d7c6;
+        }
+
+        .graph-row.sunday {
+            border-bottom: 2px solid #8b775c;
+        }
+
+        .graph-dots {
+            flex: 1;
+            position: relative;
+            height: 100%;
+        }
+
+        .graph-dot {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #3d3428;
+            border-radius: 50%;
+            top: 50%;
+            transform: translateY(-50%);
+            box-shadow: 0 0 0 1px rgba(201, 168, 108, 0.4);
+        }
+
+        .graph-canvas-wrap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+        }
+
+        .graph-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Bottom Panel */
+        .bottom-panel {
+            display: grid;
+            grid-template-columns: 280px 1fr 140px;
+            border-top: 2px solid #8b775c;
+            background: #e8e0d0;
+        }
+
+        .bottom-panel.no-finance {
+            grid-template-columns: 280px 1fr;
+        }
+
+        .panel-section {
+            padding: 14px;
+            font-size: 10px;
+        }
+
+        .panel-section:not(:last-child) {
+            border-right: 1px solid #c9b99a;
+        }
+
+        .panel-title {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #8b775c;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .goals-list {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .goal-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px dotted #c9b99a;
+        }
+
+        .goal-progress {
+            font-weight: 700;
+            color: #5c5347;
+        }
+
+        .goal-progress.complete {
+            color: #4a7c4e;
+        }
+
+        .finance-list {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .finance-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 6px;
+            background: #f5f0e1;
+            border: 1px solid #d4cbb8;
+        }
+
+        .finance-label {
+            font-weight: 700;
+            min-width: 45px;
+            color: #5c5347;
+        }
+
+        .finance-row input[type="number"] {
+            width: 60px;
+            border: none;
+            border-bottom: 1px solid #c9b99a;
+            background: transparent;
+            font-family: inherit;
+            font-size: 10px;
+            text-align: right;
+            padding: 2px;
+            color: #3d3428;
+        }
+
+        .finance-row input[type="text"] {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: 9px;
+            color: #7a7062;
+            font-style: italic;
+        }
+
+        .finance-row input:focus {
+            outline: none;
+        }
+
+        .finance-total {
+            font-weight: 700;
+            background: #d4cbb8;
+            padding: 5px 8px;
+            margin-top: 6px;
+            display: flex;
+            justify-content: space-between;
+            color: #3d3428;
+        }
+
+        .stats-grid {
+            display: grid;
+            gap: 6px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+            border-bottom: 1px dotted #c9b99a;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            color: #3d3428;
+        }
+
+        .legend {
+            font-size: 9px;
+            color: #8b775c;
+            padding: 10px 24px;
+            background: #e0d7c6;
+            border-top: 1px solid #c9b99a;
+            font-weight: 500;
+        }
+
+        .legend span {
+            margin-right: 20px;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-size: 14px;
+            color: #8b775c;
+        }
+
+        .error {
+            color: #b83232;
+            padding: 20px;
+            text-align: center;
+        }
+
+        #importInput {
+            display: none;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .moments-section,
+            .graph-section {
+                display: none;
+            }
+
+            .bottom-panel {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="app" class="loading">Loading config...</div>
+    </div>
+
+    <script>
+        let CONFIG = null;
+        let currentYear = new Date().getFullYear();
+        let currentMonth = new Date().getMonth();
+
+        const getKey = (y, m) => `tracker_${y}_${m}`;
+        const load = (y, m) => JSON.parse(localStorage.getItem(getKey(y, m)) || '{}');
+        const save = (y, m, d) => localStorage.setItem(getKey(y, m), JSON.stringify(d));
+        const daysIn = (y, m) => new Date(y, m + 1, 0).getDate();
+        const dayOfWeek = (y, m, d) => new Date(y, m, d).getDay();
+        const months = ['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
+
+        function esc(t) {
+            const d = document.createElement('div');
+            d.textContent = t || '';
+            return d.innerHTML;
+        }
+
+        function calcScore(dd) {
+            if (!dd.pos && !dd.neg) return null;
+            let s = 0;
+            if (dd.pos) s += dd.pos.filter(Boolean).length;
+            if (dd.neg) s -= dd.neg.filter(Boolean).length;
+            return s;
+        }
+
+        function saveTheme(v) {
+            localStorage.setItem(`tracker_theme_${currentYear}_${currentMonth}`, v);
+        }
+
+        function loadTheme() {
+            return localStorage.getItem(`tracker_theme_${currentYear}_${currentMonth}`) || '';
+        }
+
+        async function loadConfig() {
+            try {
+                const res = await fetch('./config.json');
+                if (!res.ok) throw new Error('Config not found');
+                CONFIG = await res.json();
+                initApp();
+            } catch (e) {
+                document.getElementById('app').innerHTML = `
+                    <div class="error">
+                        <p>Could not load config.json</p>
+                        <p style="font-size: 12px; margin-top: 10px;">${e.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function initApp() {
+            document.getElementById('app').className = '';
+            document.getElementById('app').innerHTML = `
+                <div class="header">
+                    <div class="header-left">
+                        <h1 class="month-title" id="monthTitle"></h1>
+                        <div class="monthly-theme">
+                            <span>focus:</span>
+                            <input type="text" id="monthlyTheme" placeholder="this month's theme..." 
+                                   onchange="saveTheme(this.value)">
+                        </div>
+                        <div class="motto" contenteditable="true" id="motto">${esc(CONFIG.motto)}</div>
+                    </div>
+                    <div class="nav-buttons">
+                        <button class="nav-btn" onclick="changeMonth(-1)">←</button>
+                        <button class="nav-btn" onclick="goToToday()">Today</button>
+                        <button class="nav-btn" onclick="changeMonth(1)">→</button>
+                        <button class="nav-btn export" onclick="exportData()">Export</button>
+                        <button class="nav-btn export" onclick="document.getElementById('importInput').click()">Import</button>
+                        <input type="file" id="importInput" accept=".json" onchange="importData(event)">
+                    </div>
+                </div>
+
+                <div class="main-content">
+                    <div class="moments-section">
+                        <div class="moments-title">Memorable Moments</div>
+                        <div id="momentsList"></div>
+                    </div>
+
+                    <div class="grid-section">
+                        <table class="habit-grid" id="habitGrid"></table>
+                    </div>
+
+                    <div class="graph-section">
+                        <div class="graph-title">Score</div>
+                        <div class="graph-scale">
+                            <span>-5</span>
+                            <span>0</span>
+                            <span>5</span>
+                            <span>10+</span>
+                        </div>
+                        <div class="graph-container" id="graphContainer"></div>
+                    </div>
+                </div>
+
+                <div class="bottom-panel ${CONFIG.weeklyFinance ? '' : 'no-finance'}" id="bottomPanel">
+                    <div class="panel-section">
+                        <div class="panel-title">Periodic Goals</div>
+                        <div class="goals-list" id="periodicGoals"></div>
+                    </div>
+
+                    ${CONFIG.weeklyFinance ? `
+                    <div class="panel-section">
+                        <div class="panel-title">Weekly Finance</div>
+                        <div class="finance-list" id="financeList"></div>
+                    </div>
+                    ` : ''}
+
+                    <div class="panel-section">
+                        <div class="panel-title">Month Stats</div>
+                        <div class="stats-grid" id="monthStats"></div>
+                    </div>
+                </div>
+
+                <div class="legend">
+                    <span>× black = completed</span>
+                    <span>× red = slipped (−1)</span>
+                    <span>Score = positives − slips</span>
+                </div>
+            `;
+
+            document.getElementById('motto').addEventListener('blur', function() {
+                localStorage.setItem('tracker_motto', this.textContent);
+            });
+            
+            const savedMotto = localStorage.getItem('tracker_motto');
+            if (savedMotto) document.getElementById('motto').textContent = savedMotto;
+
+            render();
+            window.addEventListener('resize', renderGraph);
+        }
+
+        function render() {
+            const days = daysIn(currentYear, currentMonth);
+            const data = load(currentYear, currentMonth);
+
+            document.getElementById('monthTitle').textContent = `${months[currentMonth]} ${currentYear}`;
+            document.getElementById('monthlyTheme').value = loadTheme();
+
+            // Moments
+            let momentsHtml = '';
+            for (let d = 1; d <= days; d++) {
+                const dd = data[d] || {};
+                const isSun = dayOfWeek(currentYear, currentMonth, d) === 0;
+                momentsHtml += `<div class="moment-row${isSun ? ' sunday' : ''}">
+                    <span class="moment-day">${d}</span>
+                    <input class="moment-input" type="text" value="${esc(dd.summary)}" 
+                           placeholder="..." data-day="${d}" onchange="updateSummary(this)">
+                </div>`;
+            }
+            document.getElementById('momentsList').innerHTML = momentsHtml;
+
+            // Grid
+            let gridHtml = '<thead><tr><th class="day-col">#</th>';
+            
+            if (CONFIG.quantitative) {
+                CONFIG.quantitative.forEach(q => {
+                    gridHtml += `<th class="quant-col">${q.name}</th>`;
+                });
+            }
+            
+            CONFIG.habits.positive.forEach(h => {
+                gridHtml += `<th>${h}</th>`;
+            });
+            
+            CONFIG.habits.avoid.forEach(h => {
+                gridHtml += `<th class="avoid-col">${h}</th>`;
+            });
+            
+            gridHtml += '<th class="score-col">Pts</th></tr></thead><tbody>';
+
+            for (let d = 1; d <= days; d++) {
+                const dd = data[d] || {};
+                const isSun = dayOfWeek(currentYear, currentMonth, d) === 0;
+                
+                gridHtml += `<tr class="${isSun ? 'sunday-row' : ''}">`;
+                gridHtml += `<td class="day-cell">${d}</td>`;
+
+                if (CONFIG.quantitative) {
+                    CONFIG.quantitative.forEach((q, i) => {
+                        const v = dd.quant && dd.quant[i] !== undefined ? dd.quant[i] : '';
+                        gridHtml += `<td class="quant-cell">
+                            <input type="number" step="0.1" value="${v}" data-day="${d}" data-idx="${i}" onchange="updateQuant(this)">
+                        </td>`;
+                    });
+                }
+
+                CONFIG.habits.positive.forEach((h, i) => {
+                    const chk = dd.pos && dd.pos[i];
+                    gridHtml += `<td class="positive${chk ? ' checked' : ''}" data-day="${d}" data-type="pos" data-idx="${i}" onclick="toggle(this)">${chk ? '×' : ''}</td>`;
+                });
+
+                CONFIG.habits.avoid.forEach((h, i) => {
+                    const chk = dd.neg && dd.neg[i];
+                    gridHtml += `<td class="avoid${chk ? ' checked' : ''}" data-day="${d}" data-type="neg" data-idx="${i}" onclick="toggle(this)">${chk ? '×' : ''}</td>`;
+                });
+
+                const score = calcScore(dd);
+                gridHtml += `<td class="score-cell">${score !== null ? score : ''}</td>`;
+                gridHtml += '</tr>';
+            }
+            gridHtml += '</tbody>';
+            document.getElementById('habitGrid').innerHTML = gridHtml;
+
+            renderGraph();
+            renderGoals();
+            if (CONFIG.weeklyFinance) renderFinance();
+            renderStats();
+        }
+
+        function toggle(cell) {
+            const d = +cell.dataset.day;
+            const t = cell.dataset.type;
+            const i = +cell.dataset.idx;
+            const data = load(currentYear, currentMonth);
+            if (!data[d]) data[d] = {};
+            if (!data[d][t]) data[d][t] = [];
+            data[d][t][i] = !data[d][t][i];
+            save(currentYear, currentMonth, data);
+            render();
+        }
+
+        function updateQuant(inp) {
+            const d = +inp.dataset.day;
+            const i = +inp.dataset.idx;
+            const v = inp.value !== '' ? parseFloat(inp.value) : null;
+            const data = load(currentYear, currentMonth);
+            if (!data[d]) data[d] = {};
+            if (!data[d].quant) data[d].quant = [];
+            data[d].quant[i] = v;
+            save(currentYear, currentMonth, data);
+            renderGraph();
+            renderStats();
+        }
+
+        function updateSummary(inp) {
+            const d = +inp.dataset.day;
+            const data = load(currentYear, currentMonth);
+            if (!data[d]) data[d] = {};
+            data[d].summary = inp.value;
+            save(currentYear, currentMonth, data);
+        }
+
+        function renderGraph() {
+            const days = daysIn(currentYear, currentMonth);
+            const data = load(currentYear, currentMonth);
+            const min = -5, max = 12, range = max - min;
+
+            let html = '';
+            const scores = [];
+
+            for (let d = 1; d <= days; d++) {
+                const dd = data[d] || {};
+                const score = calcScore(dd);
+                scores.push({ d, score });
+                const isSun = dayOfWeek(currentYear, currentMonth, d) === 0;
+
+                html += `<div class="graph-row${isSun ? ' sunday' : ''}"><div class="graph-dots">`;
+                if (score !== null) {
+                    const clamped = Math.max(min, Math.min(max, score));
+                    const pct = ((clamped - min) / range) * 100;
+                    html += `<div class="graph-dot" style="left:calc(${pct}% - 3px)"></div>`;
+                }
+                html += '</div></div>';
+            }
+
+            html += '<div class="graph-canvas-wrap"><canvas id="graphCanvas" class="graph-canvas"></canvas></div>';
+            document.getElementById('graphContainer').innerHTML = html;
+
+            setTimeout(() => {
+                const canvas = document.getElementById('graphCanvas');
+                if (!canvas) return;
+                const wrap = canvas.parentElement;
+                canvas.width = wrap.offsetWidth * 2;
+                canvas.height = wrap.offsetHeight * 2;
+                const ctx = canvas.getContext('2d');
+                ctx.scale(2, 2);
+
+                const w = wrap.offsetWidth;
+                const h = wrap.offsetHeight;
+                const rowH = h / days;
+
+                ctx.strokeStyle = '#5c5347';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+
+                // Instead of estimating positions, read dot positions from the DOM
+                // to ensure the canvas lines align exactly with the visible dots.
+                let last = null;
+                const container = wrap.parentElement; // .graph-container
+                const rows = container.querySelectorAll('.graph-row');
+                const wrapRect = wrap.getBoundingClientRect();
+
+                for (let i = 0; i < rows.length; i++) {
+                    const row = rows[i];
+                    const dot = row.querySelector('.graph-dot');
+                    if (!dot) continue;
+                    const dotRect = dot.getBoundingClientRect();
+                    const x = dotRect.left - wrapRect.left + dotRect.width / 2;
+                    const y = dotRect.top - wrapRect.top + dotRect.height / 2;
+                    if (last) {
+                        ctx.moveTo(last.x, last.y);
+                        ctx.lineTo(x, y);
+                    }
+                    last = { x, y };
+                }
+                ctx.stroke();
+            }, 10);
+        }
+
+        function renderGoals() {
+            const data = load(currentYear, currentMonth);
+            const today = new Date();
+            const isCur = today.getFullYear() === currentYear && today.getMonth() === currentMonth;
+            const curDay = isCur ? today.getDate() : daysIn(currentYear, currentMonth);
+
+            let html = '';
+            
+            if (CONFIG.periodicGoals) {
+                CONFIG.periodicGoals.forEach(g => {
+                    const idx = CONFIG.habits.positive.indexOf(g.habit);
+                    if (idx === -1) return;
+
+                    let cnt = 0;
+                    const start = Math.max(1, curDay - g.days + 1);
+                    for (let d = start; d <= curDay; d++) {
+                        if (data[d]?.pos?.[idx]) cnt++;
+                    }
+
+                    const done = cnt >= g.target;
+                    const period = g.days === 7 ? 'week' : g.days === 14 ? '2 weeks' : `${g.days}d`;
+                    html += `<div class="goal-row">
+                        <span>${g.name} (${period})</span>
+                        <span class="goal-progress${done ? ' complete' : ''}">${cnt}/${g.target}</span>
+                    </div>`;
+                });
+            }
+            
+            document.getElementById('periodicGoals').innerHTML = html;
+        }
+
+        function renderFinance() {
+            const data = load(currentYear, currentMonth);
+            const days = daysIn(currentYear, currentMonth);
+
+            const sundays = [];
+            for (let d = 1; d <= days; d++) {
+                if (dayOfWeek(currentYear, currentMonth, d) === 0) sundays.push(d);
+            }
+
+            let html = '';
+            let total = 0;
+
+            sundays.forEach((sun, i) => {
+                const fd = data[`fin_${sun}`] || {};
+                if (fd.amt) total += parseFloat(fd.amt);
+
+                html += `<div class="finance-row">
+                    <span class="finance-label">Wk ${i + 1}</span>
+                    <span>$</span>
+                    <input type="number" step="1" value="${fd.amt || ''}" data-sun="${sun}" data-f="amt" onchange="updateFin(this)">
+                    <input type="text" value="${esc(fd.note)}" placeholder="notes..." data-sun="${sun}" data-f="note" onchange="updateFin(this)">
+                </div>`;
+            });
+
+            html += `<div class="finance-total"><span>Total</span><span>$${total.toFixed(0)}</span></div>`;
+            document.getElementById('financeList').innerHTML = html;
+        }
+
+        function updateFin(inp) {
+            const sun = +inp.dataset.sun;
+            const f = inp.dataset.f;
+            const v = f === 'amt' ? (inp.value !== '' ? parseFloat(inp.value) : null) : inp.value;
+            const data = load(currentYear, currentMonth);
+            const k = `fin_${sun}`;
+            if (!data[k]) data[k] = {};
+            data[k][f] = v;
+            save(currentYear, currentMonth, data);
+            renderFinance();
+        }
+
+        function renderStats() {
+            const data = load(currentYear, currentMonth);
+            const days = daysIn(currentYear, currentMonth);
+
+            let totalScore = 0, scoreDays = 0;
+            const quantStats = CONFIG.quantitative ? CONFIG.quantitative.map(() => ({ sum: 0, count: 0 })) : [];
+
+            for (let d = 1; d <= days; d++) {
+                const dd = data[d];
+                if (!dd) continue;
+
+                const s = calcScore(dd);
+                if (s !== null) { totalScore += s; scoreDays++; }
+
+                if (CONFIG.quantitative && dd.quant) {
+                    CONFIG.quantitative.forEach((q, i) => {
+                        if (dd.quant[i]) {
+                            quantStats[i].sum += dd.quant[i];
+                            quantStats[i].count++;
+                        }
+                    });
+                }
+            }
+
+            const avgScore = scoreDays ? (totalScore / scoreDays).toFixed(1) : '-';
+
+            let html = `<div class="stat-row"><span>Avg Score</span><span class="stat-value">${avgScore}</span></div>`;
+            
+            if (CONFIG.quantitative) {
+                CONFIG.quantitative.forEach((q, i) => {
+                    const avg = quantStats[i].count ? (quantStats[i].sum / quantStats[i].count).toFixed(1) : '-';
+                    html += `<div class="stat-row"><span>Avg ${q.name}</span><span class="stat-value">${avg}</span></div>`;
+                });
+            }
+            
+            html += `<div class="stat-row"><span>Days tracked</span><span class="stat-value">${scoreDays}</span></div>`;
+
+            document.getElementById('monthStats').innerHTML = html;
+        }
+
+        function changeMonth(delta) {
+            currentMonth += delta;
+            if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+            else if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+            render();
+        }
+
+        function goToToday() {
+            const t = new Date();
+            currentYear = t.getFullYear();
+            currentMonth = t.getMonth();
+            render();
+        }
+
+        function exportData() {
+            const all = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const k = localStorage.key(i);
+                if (k.startsWith('tracker_')) all[k] = localStorage.getItem(k);
+            }
+            const blob = new Blob([JSON.stringify(all, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `tracker-backup-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+        }
+
+        function importData(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = ev => {
+                try {
+                    const d = JSON.parse(ev.target.result);
+                    Object.keys(d).forEach(k => localStorage.setItem(k, d[k]));
+                    render();
+                    alert('Imported successfully!');
+                } catch (err) {
+                    alert('Error: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+            e.target.value = '';
+        }
+
+        // Initialize
+        loadConfig();
+    </script>
+</body>
+</html>

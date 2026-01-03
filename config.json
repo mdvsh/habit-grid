@@ -1,0 +1,38 @@
+{
+  "title": "Monthly Tracker",
+  "motto": "stay present.",
+  
+  "habits": {
+    "positive": [
+      "Exercise",
+      "Read",
+      "Cook",
+      "Sleep 7+",
+      "Meditate",
+      "Learn",
+      "Create",
+      "Connect"
+    ],
+    "avoid": [
+      "Doomscroll",
+      "Junk food",
+      "Late night"
+    ]
+  },
+
+  "quantitative": [
+    { "name": "Sleep", "key": "sleep" },
+    { "name": "Weight", "key": "weight" }
+  ],
+
+  "periodicGoals": [
+    { "name": "Exercise", "target": 5, "days": 7, "habit": "Exercise" },
+    { "name": "Reading", "target": 5, "days": 7, "habit": "Read" },
+    { "name": "Learning", "target": 3, "days": 7, "habit": "Learn" },
+    { "name": "Create Something", "target": 1, "days": 14, "habit": "Create" }
+  ],
+
+  "proteinGoal": null,
+  
+  "weeklyFinance": true
+}
